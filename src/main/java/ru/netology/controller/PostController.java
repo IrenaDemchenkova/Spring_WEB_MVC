@@ -6,6 +6,8 @@ import ru.netology.service.PostService;
 
 import java.util.List;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 @RestController
 @RequestMapping("/api/posts")
 public class PostController {
@@ -20,7 +22,7 @@ public class PostController {
         return service.all();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     public Post getById(@PathVariable long id) {
         return service.getById(id);
     }
@@ -31,7 +33,7 @@ public class PostController {
     }
 
     @DeleteMapping("/{id}")
-    public void removeById(@PathVariable long id) {
+    public void removeById(long id) {
         service.removeById(id);
     }
 }
