@@ -2,6 +2,7 @@ package ru.netology.controller;
 
 import org.springframework.web.bind.annotation.*;
 import ru.netology.model.Post;
+import ru.netology.model.PostDTO;
 import ru.netology.service.PostService;
 
 import java.util.List;
@@ -18,22 +19,22 @@ public class PostController {
     }
 
     @GetMapping
-    public List<Post> all() {
+    public List<PostDTO> all() {
         return service.all();
     }
 
     @GetMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
-    public Post getById(@PathVariable long id) {
+    public PostDTO getById(@PathVariable long id) {
         return service.getById(id);
     }
 
     @PostMapping
-    public Post save(@RequestBody Post post) {
+    public PostDTO save(@RequestBody Post post) {
         return service.save(post);
     }
 
-    @DeleteMapping("/{id}")
-    public void removeById(long id) {
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public void removeById(@PathVariable long id) {
         service.removeById(id);
     }
 }

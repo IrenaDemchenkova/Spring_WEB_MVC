@@ -5,13 +5,12 @@ import java.util.Objects;
 public class Post {
     private Long id;
     private String content;
+    private boolean isDeleted = false;
 
-    public Post() {
-    }
-
-    public Post(Long id, String content) {
+    public Post(Long id, String content, boolean isDeleted) {
         this.id = id;
         this.content = content;
+        this.isDeleted = isDeleted;
     }
 
     public Long getId() {
@@ -26,8 +25,16 @@ public class Post {
         return content;
     }
 
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public void setDeleted() {
+        isDeleted = true;
     }
 
     @Override
