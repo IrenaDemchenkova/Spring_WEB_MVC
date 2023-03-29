@@ -3,36 +3,50 @@ package ru.netology.repository;
 import org.springframework.stereotype.Repository;
 import ru.netology.exception.NotFoundException;
 import ru.netology.model.Post;
+import ru.netology.model.PostDTO;
+import ru.netology.model.PostDTOMapper;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 // Stub
 @Repository
 public class PostRepository {
     private final ConcurrentHashMap<Long, Post> posts = new ConcurrentHashMap<>();
     private final AtomicLong postsCounter = new AtomicLong(1L);
+    private final PostDTOMapper postDTOMapper = new PostDTOMapper();
 
-    public List<Post> all() {
-        return (List<Post>) this.posts.values();
-    }
+    public List<PostDTO> all() {
 
-    public Optional<Post> getById(long id) {
+        return this.posts.values()
+                .stream()
+                .filter(post -> !post.isDeleted())
+                .map(postDTOMapper)
+                .collect(Collectors.toList());
+            }
+
+    public Optional<PostDTO> getById(long id) {
         return posts.values()
                 .stream()
-                .filter(post -> post.getId() == id)
-                .findFirst();
+                .filter(post ->!post.isDeleted())
+                .filter(post ->post.getId() == id)
+                .findFirst()
+                .map(postDTOMapper);
     }
 
-    public Post save(Post post) {
+    public PostDTO save(Post post) {
+        if (post.isDeleted()) {
+            throw new NotFoundException();
+        }
         if (post.getId() == 0) {
             searchingNextCounter();
             post.setId(postsCounter.longValue());
             posts.put(post.getId(), post);
-            return post;
+            return postDTOMapper.apply(post);
         }
         Post postUpdated = null; //if we have such ID
         for (Post pst : this.posts.values()) {
@@ -43,17 +57,17 @@ public class PostRepository {
         }
         posts.put(post.getId(), post);
         if (postUpdated != null) {
-            return postUpdated;
+            return postDTOMapper.apply(postUpdated);
         }
-        return post;
+        return postDTOMapper.apply(post);
     }
 
     public void removeById(long id) {
-        if (this.posts.containsKey(id)) {
+        if (!this.posts.containsKey(id) ||this.posts.get(id).isDeleted()) {
             throw new NotFoundException("No post found");
         }
-
-        this.posts.remove(id);
+        this.posts.get(id).setDeleted();
+        //this.posts.remove(id);
     }
 
     public void searchingNextCounter() {
